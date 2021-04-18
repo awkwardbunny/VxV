@@ -2,21 +2,44 @@ package dev.meirl.vxv
 
 import chisel3._
 import chisel3.util.BitPat
-import dev.meirl.vxv.ALU_OP._
-import dev.meirl.vxv.BR_COND._
-import dev.meirl.vxv.InstructionType.InstructionType
 
+/** Instruction formats */
 object InstructionType extends Enumeration {
   type InstructionType = UInt
+
+  /** The R instruction type */
   val R = 0.U(3.W)
+
+  /** The I instruction type */
   val I = 1.U(3.W)
+
+  /** The S instruction type */
   val S = 2.U(3.W)
+
+  /** The B variant of the S instruction type */
   val B = 3.U(3.W)
+
+  /** The U instruction type */
   val U = 4.U(3.W)
+
+  /** The J variant of the U instruction type */
   val J = 5.U(3.W)
+
+  /** The I instruction type, but tells the immediate generator to zero-extend */
   val Z = 6.U(3.W)
 }
 
+import dev.meirl.vxv.ALU_OP._
+import dev.meirl.vxv.BR_COND._
+import dev.meirl.vxv.InstructionType._
+
+/** Defines instruction format and behavior
+ *
+ * @param bitpat [[chisel3.util.BitPat]] to match an instruction
+ * @param itype [[InstructionType]] denotes instruction format. Used for immediate generation and register number extraction
+ * @param aluOp [[ALU_OP]] to tell ALU what to do
+ * @param brCond [[BR_COND]] to determine which branch condition to check
+ * */
 case class Instruction(bitpat: BitPat, itype: InstructionType, aluOp: ALU_OP, brCond: BR_COND)
 
 object Instructions {
@@ -88,6 +111,10 @@ object Instructions {
   val ECALL  = Instruction("b00000000000000000000000001110011", InstructionType.I, ALU_NOP, BR_NONE)
   val EBREAK = Instruction("b00000000000100000000000001110011", InstructionType.I, ALU_NOP, BR_NONE)
 
+  /** Debugging helper method to fetch all instruction patterns using reflection
+   *
+   * @return List of (name, bitPattern) tuples of strings
+   * */
   def getAllInstructionPatterns() = {
     import scala.reflect.runtime.universe._
     val rm = scala.reflect.runtime.currentMirror
@@ -117,6 +144,7 @@ object Instruction {
     }
   }
 
+  /** Helper function to create instruction from its fields */
   def apply(opcode: Int, funct3: Int, funct7: Int, itype: InstructionType, aluOp: ALU_OP, brCond: BR_COND): Instruction = {
     require(opcode < (1<<7), s"""OpCode must be shorter than 8 bits. Given: "${opcode.toBinaryString}" """)
     require(funct3 < (1<<3), s"""Funct3 must be shorter than 4 bits. Given: "${funct3.toBinaryString}" """)
@@ -134,18 +162,34 @@ object Instruction {
     }, itype, aluOp, brCond)
   }
 
+  /** Helper function to create instruction from [[scala.Predef.String]] */
   def apply(bitpat: String, itype: InstructionType, aluOp: ALU_OP, brCond: BR_COND): Instruction = this(BitPat(bitpat), itype, aluOp, brCond)
+
+  /** Helper function to create instruction from [[chisel3.util.BitPat]] */
   def apply(bitpat: BitPat, itype: InstructionType, aluOp: ALU_OP, brCond: BR_COND): Instruction = {
     require(bitpat.getWidth == 32, s"Instruction length must be 32 bits. Provided length: ${bitpat.getWidth}")
     new Instruction(bitpat, itype, aluOp, brCond)
   }
 
+  /** Helper function to create R-type instruction */
   def R(opcode: Int, funct3: Int, funct7: Int, aluOp: ALU_OP, brCond: BR_COND) = Instruction(opcode, funct3, funct7, InstructionType.R, aluOp, brCond)
+
+  /** Helper function to create I-type instruction */
   def I(opcode: Int, funct3: Int, aluOp: ALU_OP, brCond: BR_COND) = Instruction(opcode, funct3, 0, InstructionType.I, aluOp, brCond)
+
+  /** Helper function to create S-type instruction */
   def S(opcode: Int, funct3: Int, aluOp: ALU_OP, brCond: BR_COND) = Instruction(opcode, funct3, 0, InstructionType.S, aluOp, brCond)
+
+  /** Helper function to create B-type instruction */
   def B(opcode: Int, funct3: Int, aluOp: ALU_OP, brCond: BR_COND) = Instruction(opcode, funct3, 0, InstructionType.B, aluOp, brCond)
+
+  /** Helper function to create U-type instruction */
   def U(opcode: Int, aluOp: ALU_OP, brCond: BR_COND) = Instruction(opcode, 0, 0, InstructionType.U, aluOp, brCond)
+
+  /** Helper function to create J-type instruction */
   def J(opcode: Int, aluOp: ALU_OP, brCond: BR_COND) = Instruction(opcode, 0, 0, InstructionType.J, aluOp, brCond)
+
+  /** Helper function to create Z-type instruction */
   def Z(opcode: Int, funct3: Int, aluOp: ALU_OP, brCond: BR_COND) = Instruction(opcode, funct3, 0, InstructionType.I, aluOp, brCond)
 
 }

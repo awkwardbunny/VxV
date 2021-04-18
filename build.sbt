@@ -21,8 +21,21 @@ lazy val root = (project in file("."))
       "-feature",
       "-Xcheckinit"
     ),
+    autoAPIMappings := true,
+
+    // From https://stackoverflow.com/a/35673212
+    apiMappings ++= {
+      def mappingsFor(organization: String, name: String, location: String, revision: (String) => String = identity): Seq[(File, URL)] =
+        for {
+          entry: Attributed[File] <- (fullClasspath in Compile).value
+          module: ModuleID <- entry.get(moduleID.key)
+          if module.organization == organization
+          if module.name.startsWith(name)
+        } yield entry.data -> url(location.format(revision(module.revision)))
+
+      mappingsFor("edu.berkeley.cs", "chisel3", "https://www.chisel-lang.org/api/%s/").toMap
+    },
     addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % "3.4.2" cross CrossVersion.full),
     addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
   ) dependsOn `api-config-chipsalliance`
-
 
