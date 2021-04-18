@@ -2,11 +2,14 @@
 
 ThisBuild / scalaVersion     := "2.12.12"
 ThisBuild / version          := "0.1.0"
-ThisBuild / organization     := "com.github.awkwardbunny"
+ThisBuild / organization     := "dev.meirl"
+
+lazy val `api-config-chipsalliance` = (project in file("lib/api-config-chipsalliance/build-rules/sbt"))
+  .settings(publishArtifact := false)
 
 lazy val root = (project in file("."))
   .settings(
-    name := "test-design",
+    name := "VxV",
     libraryDependencies ++= Seq(
       "edu.berkeley.cs" %% "chisel3" % "3.4.2",
       "edu.berkeley.cs" %% "chiseltest" % "0.3.2" % "test"
@@ -20,6 +23,6 @@ lazy val root = (project in file("."))
     ),
     addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % "3.4.2" cross CrossVersion.full),
     addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
-  )
+  ) dependsOn `api-config-chipsalliance`
 
 
