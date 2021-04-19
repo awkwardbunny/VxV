@@ -1,10 +1,7 @@
 package main
 
 import chisel3.stage.{ChiselGeneratorAnnotation, ChiselStage}
-import chisel3.util.BitPat
-import dev.meirl.vxv.{Instruction, Instructions, Tile, VxVConfig}
-
-import scala.reflect.runtime.universe._
+import dev.meirl.vxv.{Instructions, Tile, VxVConfig}
 
 object Main extends App {
   val path = try args(0) catch { case _: Throwable => "generated_output" }

@@ -1,6 +1,6 @@
 package dev.meirl.vxv
 
-import chisel3.{Mem, Mux, when, _}
+import chisel3._
 import chipsalliance.rocketchip.config.Parameters
 
 class RegFileIO(implicit val p: Parameters) extends Bundle {

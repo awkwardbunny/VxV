@@ -1,7 +1,6 @@
 package dev.meirl.vxv
 
 import chisel3._
-import chisel3.util._
 import chipsalliance.rocketchip.config.Parameters
 
 class TileIO(implicit val p: Parameters) extends Bundle {
