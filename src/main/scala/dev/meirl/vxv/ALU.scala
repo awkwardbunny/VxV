@@ -4,6 +4,22 @@ import chisel3.util.MuxLookup
 import chisel3._
 import chipsalliance.rocketchip.config.Parameters
 
+object ALU_INPUT_A extends Enumeration {
+  type ALU_INPUT_A = UInt
+  val ALU_A_NONE = 0.U(2.W)
+  val ALU_A_REG  = 1.U(2.W)
+  val ALU_A_PC   = 2.U(2.W)
+  val ALU_A_IMM  = 3.U(2.W)
+}
+
+object ALU_INPUT_B extends Enumeration {
+  type ALU_INPUT_B = UInt
+  val ALU_B_NONE = 0.U(2.W)
+  val ALU_B_REG  = 1.U(2.W)
+  val ALU_B_PC   = 2.U(2.W)
+  val ALU_B_IMM  = 3.U(2.W)
+}
+
 object ALU_OP extends Enumeration {
   type ALU_OP = UInt
   val ALU_ADD    = 0.U(4.W)
